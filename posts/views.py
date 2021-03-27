@@ -31,7 +31,6 @@ def group_posts(request, slug):
                   "group": group,
                   "posts": posts,
                   "page": page,
-                  "paginator": paginator
                   }
                   )
 

@@ -92,13 +92,9 @@ class TestClientUrl(TestCase):
         """ URL-адрес использует соответствующий шаблон. """
         templates_url_names = {
             'index.html': reverse('index'),
-            '/new.html/': reverse('new_post'),
+            'new.html': reverse('new_post'),
             'group.html': reverse('group_posts',
                                   args=[TestClientUrl.group.slug]),
-            'new.html/': reverse("post_edit",
-                                 kwargs={'username':
-                                         TestClientUrl.posts.author.username,
-                                         'post_id': TestClientUrl.posts.id}),
             'about/author.html': reverse('about:author'),
             'about/tech.html': reverse('about:tech'),
         }
@@ -107,6 +103,17 @@ class TestClientUrl(TestCase):
                 response = self.authorized_client.get(reverse_name)
                 print("Проверка", reverse_name)
                 self.assertTemplateUsed(response, template)
+
+    def test_urls_new_corret_templates(self):
+        template = 'new.html'
+        response = self.authorized_client.get(
+            reverse("post_edit",
+                    kwargs={
+                        'username':
+                        TestClientUrl.posts.author.username,
+                        'post_id':
+                        TestClientUrl.posts.id}),)
+        self.assertTemplateUsed(response, template)
 
     def test_new_url_redirect_anonymous_on_admin_login(self):
         """ Редирект не авторизированиго пользователя с new на регистрацию"""

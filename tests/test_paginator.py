@@ -17,13 +17,13 @@ class TestGroupPaginatorView:
         assert 'paginator' in response.context, (
             'Проверьте, что передали переменную `paginator` в контекст страницы `/group/<slug>/`'
         )
-        assert type(response.context['paginator']) == Paginator, (
+        assert isinstance(response.context['paginator'], Paginator), (
             'Проверьте, что переменная `paginator` на странице `/group/<slug>/` типа `Paginator`'
         )
         assert 'page' in response.context, (
             'Проверьте, что передали переменную `page` в контекст страницы `/group/<slug>/`'
         )
-        assert type(response.context['page']) == Page, (
+        assert isinstance(response.context['page'], Page), (
             'Проверьте, что переменная `page` на странице `/group/<slug>/` типа `Page`'
         )
 
@@ -34,12 +34,12 @@ class TestGroupPaginatorView:
         assert 'paginator' in response.context, (
             'Проверьте, что передали переменную `paginator` в контекст страницы `/`'
         )
-        assert type(response.context['paginator']) == Paginator, (
+        assert isinstance(response.context['paginator'], Paginator), (
             'Проверьте, что переменная `paginator` на странице `/` типа `Paginator`'
         )
         assert 'page' in response.context, (
             'Проверьте, что передали переменную `page` в контекст страницы `/`'
         )
-        assert type(response.context['page']) == Page, (
+        assert isinstance(response.context['page'], Page), (
             'Проверьте, что переменная `page` на странице `/` типа `Page`'
         )

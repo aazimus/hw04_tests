@@ -14,21 +14,36 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='group',
             name='slug',
-            field=models.SlugField(blank=True, help_text='Укажите адрес для страницы задачи. Используйте только латиницу, цифры, дефисы и знаки подчёркивания', max_length=100, unique=True, verbose_name='Адрес для страницы с группой'),
+            field=models.SlugField(
+                blank=True,
+                help_text='Укажите адрес для страницы задачи. Используйте только латиницу, цифры, дефисы и знаки подчёркивания',
+                max_length=100,
+                unique=True,
+                verbose_name='Адрес для страницы с группой'),
         ),
         migrations.AlterField(
             model_name='group',
             name='title',
-            field=models.CharField(help_text='Дайте название вашей группе', max_length=200, verbose_name='Название группы'),
+            field=models.CharField(
+                help_text='Дайте название вашей группе',
+                max_length=200,
+                verbose_name='Название группы'),
         ),
         migrations.AlterField(
             model_name='post',
             name='group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='posts', to='posts.Group'),
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name='posts',
+                to='posts.Group'),
         ),
         migrations.AlterField(
             model_name='post',
             name='text',
-            field=models.TextField(help_text='Содержание вашего поста', verbose_name='Текст вашего поста'),
+            field=models.TextField(
+                help_text='Содержание вашего поста',
+                verbose_name='Текст вашего поста'),
         ),
     ]

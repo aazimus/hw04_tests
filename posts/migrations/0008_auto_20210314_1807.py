@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='group',
             name='description',
-            field=models.TextField(help_text='Дайте описание группы', verbose_name='Описание группы'),
+            field=models.TextField(
+                help_text='Дайте описание группы',
+                verbose_name='Описание группы'),
         ),
     ]

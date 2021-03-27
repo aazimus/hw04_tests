@@ -92,13 +92,13 @@ class TestClientUrl(TestCase):
         """ URL-адрес использует соответствующий шаблон. """
         templates_url_names = {
             'index.html': reverse('index'),
-            'new.html': reverse('new_post'),
+            '/new.html/': reverse('new_post'),
             'group.html': reverse('group_posts',
                                   args=[TestClientUrl.group.slug]),
-            'new.html': reverse("post_edit",
-                                kwargs={'username':
-                                        TestClientUrl.posts.author.username,
-                                        'post_id': TestClientUrl.posts.id}),
+            'new.html/': reverse("post_edit",
+                                 kwargs={'username':
+                                         TestClientUrl.posts.author.username,
+                                         'post_id': TestClientUrl.posts.id}),
             'about/author.html': reverse('about:author'),
             'about/tech.html': reverse('about:tech'),
         }

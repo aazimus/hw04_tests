@@ -1,5 +1,4 @@
 
-from django.conf import settings
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -64,7 +63,10 @@ class PostCreateFormTests(TestCase):
             'group': PostCreateFormTests.group.id
         }
         response = self.authorized_client.post(
-            reverse("post_edit", kwargs={'username': PostCreateFormTests.user.username, 'post_id': PostCreateFormTests.post.id}), data=fix_form_data, follow=False)
+            reverse("post_edit",
+                    kwargs={'username': PostCreateFormTests.user.username,
+                            'post_id': PostCreateFormTests.post.id}),
+            data=fix_form_data, follow=False)
         self.assertRedirects(
             response,
             reverse(

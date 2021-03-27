@@ -1,6 +1,4 @@
 # deals/tests/tests_models.py
-from typing import Text
-from django.forms import fields
 from django.test import TestCase
 
 from posts.models import Post, Group, User

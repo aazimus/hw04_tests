@@ -1,12 +1,10 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.http import response
 from django.test import Client, TestCase
 from django.urls import reverse
 from time import sleep
 
 from posts.models import User, Group, Post
-from posts.views import new_post
 
 User = get_user_model()
 
@@ -48,7 +46,8 @@ class ViewModelTest(TestCase):
         templates_pages_names = {
             'index.html': reverse('index'),
             'new.html': reverse('new_post'),
-            'group.html': reverse('group_posts', args=[ViewModelTest.group.slug])
+            'group.html': reverse('group_posts',
+                                  args=[ViewModelTest.group.slug])
         }
 
         for template, reverse_name in templates_pages_names.items():
@@ -139,7 +138,8 @@ class ViewModelTest(TestCase):
     def test_profile_user_post(self):
         """Проверка контекста страницы профайла на контекст"""
         response = ViewModelTest.authorized_client.get(
-            reverse("profile", kwargs={'username': ViewModelTest.posts.author.username}))
+            reverse("profile", kwargs={'username':
+                                       ViewModelTest.posts.author.username}))
         post_object = response.context['page'][0]
         post_author_0 = post_object.author
         post_pub_date_0 = post_object.pub_date
@@ -202,13 +202,3 @@ class PaginatorViewsTest(TestCase):
         """Проверка правильной работы пагинатора 2ая страница"""
         response = self.client.get(reverse('index') + '?page=2')
         self.assertEqual(len(response.context.get('page').object_list), 3)
-
-    # def test_about_author_view(self):
-    #    """ about аытор использует правильную view - функию """
-    #    response = self.client.get(reverse('about:author'))
-    #
-    #    author_context_title = response.context
-    #    __import__('pdb').set_trace()
-    #    #last_post = Post.objects.order_by("-pub_date")[0:1]
-    #  self.assertNotEqual(author_context_title,'Об авторе проекта' )
-    #

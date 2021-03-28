@@ -38,20 +38,20 @@ class TestPost:
         model_fields = Post._meta.fields
         text_field = search_field(model_fields, 'text')
         assert text_field is not None, 'Добавьте название события `text` модели `Post`'
-        assert type(text_field) == fields.TextField, (
+        assert isinstance(text_field, fields.TextField), (
             'Свойство `text` модели `Post` должно быть текстовым `TextField`'
         )
 
         pub_date_field = search_field(model_fields, 'pub_date')
         assert pub_date_field is not None, 'Добавьте дату и время проведения события `pub_date` модели `Post`'
-        assert type(pub_date_field) == fields.DateTimeField, (
+        assert isinstance(pub_date_field, fields.DateTimeField), (
             'Свойство `pub_date` модели `Post` должно быть датой и время `DateTimeField`'
         )
         assert pub_date_field.auto_now_add, 'Свойство `pub_date` модели `Post` должно быть `auto_now_add`'
 
         author_field = search_field(model_fields, 'author_id')
         assert author_field is not None, 'Добавьте пользователя, автор который создал событие `author` модели `Post`'
-        assert type(author_field) == fields.related.ForeignKey, (
+        assert isinstance(author_field, fields.related.ForeignKey), (
             'Свойство `author` модели `Post` должно быть ссылкой на другую модель `ForeignKey`'
         )
         assert author_field.related_model == get_user_model(), (
@@ -60,7 +60,7 @@ class TestPost:
 
         group_field = search_field(model_fields, 'group_id')
         assert group_field is not None, 'Добавьте свойство `group` в модель `Post`'
-        assert type(group_field) == fields.related.ForeignKey, (
+        assert isinstance(group_field, fields.related.ForeignKey), (
             'Свойство `group` модели `Post` должно быть ссылкой на другую модель `ForeignKey`'
         )
         assert group_field.related_model == Group, (
@@ -123,21 +123,21 @@ class TestGroup:
         model_fields = Group._meta.fields
         title_field = search_field(model_fields, 'title')
         assert title_field is not None, 'Добавьте название события `title` модели `Group`'
-        assert type(title_field) == fields.CharField, (
+        assert isinstance(title_field, fields.CharField), (
             'Свойство `title` модели `Group` должно быть символьным `CharField`'
         )
         assert title_field.max_length == 200, 'Задайте максимальную длину `title` модели `Group` 200'
 
         slug_field = search_field(model_fields, 'slug')
         assert slug_field is not None, 'Добавьте уникальный адрес группы `slug` модели `Group`'
-        assert type(slug_field) == fields.SlugField, (
+        assert isinstance(slug_field, fields.SlugField), (
             'Свойство `slug` модели `Group` должно быть `SlugField`'
         )
         assert slug_field.unique, 'Свойство `slug` модели `Group` должно быть уникальным'
 
         description_field = search_field(model_fields, 'description')
         assert description_field is not None, 'Добавьте описание `description` модели `Group`'
-        assert type(description_field) == fields.TextField, (
+        assert isinstance(description_field, fields.TextField), (
             'Свойство `description` модели `Group` должно быть текстовым `TextField`'
         )
 
@@ -157,7 +157,8 @@ class TestGroup:
         description = 'Тестовое описание группы'
 
         assert Group.objects.all().count() == 0
-        group = Group.objects.create(title=title, slug=slug, description=description)
+        group = Group.objects.create(
+            title=title, slug=slug, description=description)
         assert Group.objects.all().count() == 1
         assert Group.objects.get(slug=slug).pk == group.pk
 
@@ -194,7 +195,8 @@ class TestGroupView:
         )
 
         assert re.search(
-            r'<\s*title\s*>\s*Записи\s+сообщества\s+' + group.title + r'\s+\|\s+Yatube\s*<\s*\/title\s*>',
+            r'<\s*title\s*>\s*Записи\s+сообщества\s+'
+            + group.title + r'\s+\|\s+Yatube\s*<\s*\/title\s*>',
             html
         ), (
             'Отредактируйте HTML-шаблон, не найдено название страницы '
@@ -210,6 +212,7 @@ class TestGroupView:
         ), 'Отредактируйте HTML-шаблон, не найдено описание группы `<p>{{ описание_группы }}</p>`'
 
         assert re.search(
-            r'<\s*p(\s+class=".+"|\s*)>\s*' + post_with_group.text + r'\s*<\s*\/p\s*>',
+            r'<\s*p(\s+class=".+"|\s*)>\s*'
+            + post_with_group.text + r'\s*<\s*\/p\s*>',
             html
         ), 'Отредактируйте HTML-шаблон, не найден текст поста `<p>{{ текст_поста }}</p>`'

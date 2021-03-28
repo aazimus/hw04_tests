@@ -2,7 +2,6 @@
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from posts.forms import PostForm
 from posts.models import Post, Group, User
 
 
@@ -25,9 +24,6 @@ class PostCreateFormTests(TestCase):
             group=cls.group,
             author=PostCreateFormTests.user
         )
-        
-        
-
 
     def test_create_post(self):
         """Валидная форма создает запись в Post."""
@@ -43,7 +39,7 @@ class PostCreateFormTests(TestCase):
             data=form_data,
             follow=False
         )
-        self.assertEqual(response.status_code,302)
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('index'))
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertTrue(
@@ -65,7 +61,8 @@ class PostCreateFormTests(TestCase):
                     kwargs={'username': PostCreateFormTests.user.username,
                             'post_id': PostCreateFormTests.post.id}),
             data=fix_form_data, follow=False)
-        
+
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Post.objects.count(), post_count)
         self.assertTrue(
             Post.objects.filter(
@@ -96,7 +93,6 @@ class PostCreateFormTests(TestCase):
             ).exists()
         )
 
-
     def test_guest_client_create_post(self):
         """Не авторизированый пользователь не может создавать новый пост."""
         post_count = Post.objects.count()
@@ -111,11 +107,11 @@ class PostCreateFormTests(TestCase):
             data=form_data,
             follow=False
         )
-        self.assertEqual(response.status_code,302)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Post.objects.count(), post_count)
         self.assertFalse(
             Post.objects.filter(
                 text='text',
                 group=PostCreateFormTests.group.id
             ).exists()
-        )    
+        )

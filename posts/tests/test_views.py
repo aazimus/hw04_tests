@@ -21,7 +21,7 @@ class ViewModelTest(TestCase):
             slug='test2-slug',
             description='Test-slug'
         )
-       
+
         cls.group = Group.objects.create(
             title='Название группы',
             slug='test-slug',
@@ -48,34 +48,24 @@ class ViewModelTest(TestCase):
                 response = self.authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
 
+    def check_context_post(self, objects):
+        self.assertEqual(objects.pub_date, ViewModelTest.posts.pub_date)
+        self.assertEqual(objects.text, ViewModelTest.posts.text)
+        self.assertEqual(objects.author.username,
+                         ViewModelTest.posts.author.username)
+
     def test_home_page_shows_correct_context(self):
         """Проверка главной страницы  на шаблон"""
         response = self.authorized_client.get(reverse('index'))
         post_object = response.context['page'][0]
-        post_author = post_object.author
-        post_pub_date = post_object.pub_date
-        post_text = post_object.text
-        self.assertEqual(
-            post_author.username,
-            ViewModelTest.posts.author.username)
-        self.assertEqual(post_text, ViewModelTest.posts.text)
-        self.assertEqual(post_pub_date, ViewModelTest.posts.pub_date)
+        self.check_context_post(post_object)
 
     def test_group_page_shows_correct_context(self):
         """Проверка страницы группы на шаблон"""
         response = self.authorized_client.get(
             reverse('group_posts', args=[ViewModelTest.group.slug]))
         group_object = response.context['posts'][0]
-        group_author = group_object.author
-        group_pub_date = group_object.pub_date
-
-        group_text = group_object.text
-
-        self.assertEqual(
-            group_author.username,
-            ViewModelTest.posts.author.username)
-        self.assertEqual(group_pub_date, ViewModelTest.posts.pub_date)
-        self.assertEqual(group_text, ViewModelTest.posts.text)
+        self.check_context_post(group_object)
 
     def test_new_posts_page_shows_correct_context(self):
         """Проверка страницы нового поста  на шаблон"""
@@ -101,7 +91,7 @@ class ViewModelTest(TestCase):
         post_object = response.context['page'][0]
         post_text_index = post_object
         last_post = Post.objects.order_by("-pub_date")[0:1]
-        
+
         self.assertEqual(post_text_index, last_post.get())
 
     def test_new_post_group_identification(self):
@@ -109,7 +99,7 @@ class ViewModelTest(TestCase):
         response = self.authorized_client.get(
             reverse('group_posts', args=[ViewModelTest.group2.slug]))
         post_count = len(response.context['posts'])
-        self.assertEqual(post_count,0 )
+        self.assertEqual(post_count, 0)
 
     def test_post_edit_correct_context(self):
         """Проверка страницы редактирования поста  на шаблон"""
@@ -134,14 +124,7 @@ class ViewModelTest(TestCase):
             reverse("profile", kwargs={'username':
                                        ViewModelTest.posts.author.username}))
         post_object = response.context['page'][0]
-        post_author = post_object.author
-        post_pub_date = post_object.pub_date
-        post_text = post_object.text
-        self.assertEqual(
-            post_author.username,
-            ViewModelTest.posts.author.username)
-        self.assertEqual(post_text, ViewModelTest.posts.text)
-        self.assertEqual(post_pub_date, ViewModelTest.posts.pub_date)
+        self.check_context_post(post_object)
 
     def test_post_user_post(self):
         """Проверка контекста страницы отдельног поста"""
@@ -168,19 +151,16 @@ class PaginatorViewsTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.test_group = (Group.objects.create(
-                title='Группа для проверки пагинатора',
-                slug='Test-slug-paginator',                
-            )
-            )           
+            title='Группа для проверки пагинатора',
+            slug='Test-slug-paginator',))
+
         cls.array_posts = []
         for index_posts in range(13):
             username_par = f'Пользователь {index_posts}'
             PaginatorViewsTest.array_posts.append(Post.objects.create(
                 text=f'Текст вашего поста{index_posts}',
                 group=PaginatorViewsTest.test_group,
-                author=User.objects.create(username=username_par)
-            )
-            )
+                author=User.objects.create(username=username_par)))
 
     def test_first_page_containse_ten_records(self):
         """Проверка правильной работы пагинатора 1ая страница"""
@@ -189,5 +169,5 @@ class PaginatorViewsTest(TestCase):
 
     def test_second_page_containse_three_records(self):
         """Проверка правильной работы пагинатора 2ая страница"""
-        response = self.client.get(reverse('index') ,{'page':2}) 
+        response = self.client.get(reverse('index'), {'page': 2})
         self.assertEqual(len(response.context.get('page').object_list), 3)

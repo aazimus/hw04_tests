@@ -44,21 +44,24 @@ class TestClientUrl(TestCase):
         # пользователя,второй в списке код проверка авторизированного
         # пользователя
         cls.urls_code = {
-            reverse('index', args=None): {'unauth': 200, 'auth': 200,},
-            reverse('new_post', args=None):{'unauth': 302, 'auth': 200,},
+            reverse('index', args=None): {'unauth': 200, 'auth': 200, },
+            reverse('new_post', args=None): {'unauth': 302, 'auth': 200, },
             reverse("group_posts",
-                    args=[TestClientUrl.group.slug]): {'unauth': 200, 'auth': 200,},
+                    args=[TestClientUrl.group.slug]):
+            {'unauth': 200, 'auth': 200, },
             reverse("profile",
-                    args=[TestClientUrl.posts.author.username]): {'unauth': 200, 'auth': 200,},
+                    args=[TestClientUrl.posts.author.username]):
+            {'unauth': 200, 'auth': 200, },
             reverse("post", kwargs={'username':
                                     TestClientUrl.posts.author.username,
                                     'post_id': TestClientUrl.posts.id}):
-            {'unauth': 200, 'auth': 200,},
+            {'unauth': 200, 'auth': 200, },
             reverse("post_edit",
                     kwargs={'username': TestClientUrl.posts.author.username,
-                            'post_id': TestClientUrl.posts.id}): {'unauth': 302, 'auth': 200,},
-            reverse('about:author'): {'unauth': 200, 'auth': 200,},
-            reverse('about:tech'): {'unauth': 200, 'auth': 200,},
+                            'post_id': TestClientUrl.posts.id}):
+            {'unauth': 302, 'auth': 200, },
+            reverse('about:author'): {'unauth': 200, 'auth': 200, },
+            reverse('about:tech'): {'unauth': 200, 'auth': 200, },
 
         }
 
@@ -67,7 +70,9 @@ class TestClientUrl(TestCase):
         for urls, none_user_code in TestClientUrl.urls_code.items():
             with self.subTest():
                 response = self.guest_client.get(urls)
-                self.assertEqual(response.status_code, none_user_code['unauth'])
+                self.assertEqual(
+                    response.status_code,
+                    none_user_code['unauth'])
 
     def test_home_url_user_location(self):
         """Тесты на авторизированного пользователя прошли"""

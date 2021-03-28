@@ -1,4 +1,3 @@
-# deals/tests/tests_models.py
 from django.test import TestCase
 
 from posts.models import Post, Group, User

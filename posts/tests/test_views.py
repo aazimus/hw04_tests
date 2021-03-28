@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
-from time import sleep
 
 from posts.models import User, Group, Post
 
@@ -18,17 +17,11 @@ class ViewModelTest(TestCase):
         cls.authorized_client.force_login(ViewModelTest.user)
 
         cls.group2 = Group.objects.create(
-            title='Назван22ие группы',
+            title='Название группы 2',
             slug='test2-slug',
             description='Test-slug'
         )
-        cls.posts2 = Post.objects.create(
-            text='Текст',
-            group=cls.group2,
-            author=User.objects.create(username='ivan')
-        )
-
-        sleep(0.1)
+       
         cls.group = Group.objects.create(
             title='Название группы',
             slug='test-slug',
@@ -59,30 +52,30 @@ class ViewModelTest(TestCase):
         """Проверка главной страницы  на шаблон"""
         response = self.authorized_client.get(reverse('index'))
         post_object = response.context['page'][0]
-        post_author_0 = post_object.author
-        post_pub_date_0 = post_object.pub_date
-        post_text_0 = post_object.text
+        post_author = post_object.author
+        post_pub_date = post_object.pub_date
+        post_text = post_object.text
         self.assertEqual(
-            post_author_0.username,
+            post_author.username,
             ViewModelTest.posts.author.username)
-        self.assertEqual(post_text_0, ViewModelTest.posts.text)
-        self.assertEqual(post_pub_date_0, ViewModelTest.posts.pub_date)
+        self.assertEqual(post_text, ViewModelTest.posts.text)
+        self.assertEqual(post_pub_date, ViewModelTest.posts.pub_date)
 
     def test_group_page_shows_correct_context(self):
         """Проверка страницы группы на шаблон"""
         response = self.authorized_client.get(
             reverse('group_posts', args=[ViewModelTest.group.slug]))
         group_object = response.context['posts'][0]
-        group_author_0 = group_object.author
-        group_pub_date_0 = group_object.pub_date
+        group_author = group_object.author
+        group_pub_date = group_object.pub_date
 
-        group_text_0 = group_object.text
+        group_text = group_object.text
 
         self.assertEqual(
-            group_author_0.username,
+            group_author.username,
             ViewModelTest.posts.author.username)
-        self.assertEqual(group_pub_date_0, ViewModelTest.posts.pub_date)
-        self.assertEqual(group_text_0, ViewModelTest.posts.text)
+        self.assertEqual(group_pub_date, ViewModelTest.posts.pub_date)
+        self.assertEqual(group_text, ViewModelTest.posts.text)
 
     def test_new_posts_page_shows_correct_context(self):
         """Проверка страницы нового поста  на шаблон"""
@@ -108,15 +101,15 @@ class ViewModelTest(TestCase):
         post_object = response.context['page'][0]
         post_text_index = post_object
         last_post = Post.objects.order_by("-pub_date")[0:1]
+        
         self.assertEqual(post_text_index, last_post.get())
 
     def test_new_post_group_identification(self):
         """ Новый пост  не  появляетя не в своей группе """
         response = self.authorized_client.get(
             reverse('group_posts', args=[ViewModelTest.group2.slug]))
-        post_object2 = response.context['posts'][0]
-        last_post = Post.objects.order_by("-pub_date")[0:1]
-        self.assertNotEqual(post_object2, last_post.get())
+        post_count = len(response.context['posts'])
+        self.assertEqual(post_count,0 )
 
     def test_post_edit_correct_context(self):
         """Проверка страницы редактирования поста  на шаблон"""
@@ -141,14 +134,14 @@ class ViewModelTest(TestCase):
             reverse("profile", kwargs={'username':
                                        ViewModelTest.posts.author.username}))
         post_object = response.context['page'][0]
-        post_author_0 = post_object.author
-        post_pub_date_0 = post_object.pub_date
-        post_text_0 = post_object.text
+        post_author = post_object.author
+        post_pub_date = post_object.pub_date
+        post_text = post_object.text
         self.assertEqual(
-            post_author_0.username,
+            post_author.username,
             ViewModelTest.posts.author.username)
-        self.assertEqual(post_text_0, ViewModelTest.posts.text)
-        self.assertEqual(post_pub_date_0, ViewModelTest.posts.pub_date)
+        self.assertEqual(post_text, ViewModelTest.posts.text)
+        self.assertEqual(post_pub_date, ViewModelTest.posts.pub_date)
 
     def test_post_user_post(self):
         """Проверка контекста страницы отдельног поста"""
@@ -174,21 +167,17 @@ class PaginatorViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.array_group = []
-        for index_group in range(13):
-            # Здесь создаются фикстуры 13 тестовых записей.
-            PaginatorViewsTest.array_group.append(Group.objects.create(
-                title=f'Название группы{index_group}',
-                slug=f'Test-slug{index_group}',
-                description=f'Test-slug{index_group}'
+        cls.test_group = (Group.objects.create(
+                title='Группа для проверки пагинатора',
+                slug='Test-slug-paginator',                
             )
-            )
+            )           
         cls.array_posts = []
         for index_posts in range(13):
             username_par = f'Пользователь {index_posts}'
             PaginatorViewsTest.array_posts.append(Post.objects.create(
                 text=f'Текст вашего поста{index_posts}',
-                group=PaginatorViewsTest.array_group[index_posts],
+                group=PaginatorViewsTest.test_group,
                 author=User.objects.create(username=username_par)
             )
             )
@@ -200,5 +189,5 @@ class PaginatorViewsTest(TestCase):
 
     def test_second_page_containse_three_records(self):
         """Проверка правильной работы пагинатора 2ая страница"""
-        response = self.client.get(reverse('index') + '?page=2')
+        response = self.client.get(reverse('index') ,{'page':2}) 
         self.assertEqual(len(response.context.get('page').object_list), 3)

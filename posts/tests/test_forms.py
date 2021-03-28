@@ -13,6 +13,7 @@ class PostCreateFormTests(TestCase):
         cls.user = User.objects.create_user(username='test-user')
         cls.authorized_client = Client()
         cls.authorized_client.force_login(cls.user)
+        cls.guest_client = Client()
 
         cls.group = Group.objects.create(
             title='Название группы',
@@ -24,13 +25,9 @@ class PostCreateFormTests(TestCase):
             group=cls.group,
             author=PostCreateFormTests.user
         )
-        cls.form = PostForm()
-        # __import__('pdb').set_trace()
+        
+        
 
-    # def setUp(self):
-    #    self.user = User.objects.create_user(username='user')
-    #    self.authorized_client = Client()
-    #    self.authorized_client.force_login(self.user)
 
     def test_create_post(self):
         """Валидная форма создает запись в Post."""
@@ -46,6 +43,7 @@ class PostCreateFormTests(TestCase):
             data=form_data,
             follow=False
         )
+        self.assertEqual(response.status_code,302)
         self.assertRedirects(response, reverse('index'))
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertTrue(
@@ -67,13 +65,7 @@ class PostCreateFormTests(TestCase):
                     kwargs={'username': PostCreateFormTests.user.username,
                             'post_id': PostCreateFormTests.post.id}),
             data=fix_form_data, follow=False)
-        self.assertRedirects(
-            response,
-            reverse(
-                "post_edit",
-                kwargs={
-                    'username': PostCreateFormTests.user.username,
-                    'post_id': PostCreateFormTests.post.id}))
+        
         self.assertEqual(Post.objects.count(), post_count)
         self.assertTrue(
             Post.objects.filter(
@@ -81,3 +73,49 @@ class PostCreateFormTests(TestCase):
                 group=PostCreateFormTests.group.id
             ).exists()
         )
+
+    def test_guest_client_post_edit_change(self):
+        """Проверка Не авторизированый пользователь"""
+        """не может редактировать пост  """
+        post_count = Post.objects.count()
+        fix_form_data = {
+            'text': 'Отредактрированный текст',
+            'group': PostCreateFormTests.group.id
+        }
+        response = self.guest_client.post(
+            reverse("post_edit",
+                    kwargs={'username': PostCreateFormTests.user.username,
+                            'post_id': PostCreateFormTests.post.id}),
+            data=fix_form_data, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Post.objects.count(), post_count)
+        self.assertFalse(
+            Post.objects.filter(
+                text='Отредактрированный текст',
+                group=PostCreateFormTests.group.id
+            ).exists()
+        )
+
+
+    def test_guest_client_create_post(self):
+        """Не авторизированый пользователь не может создавать новый пост."""
+        post_count = Post.objects.count()
+        form_data = {
+            'text': 'text',
+            'group': PostCreateFormTests.group.id,
+            'author': self.user
+        }
+        # Отправляем POST-запрос
+        response = self.guest_client.post(
+            reverse('new_post'),
+            data=form_data,
+            follow=False
+        )
+        self.assertEqual(response.status_code,302)
+        self.assertEqual(Post.objects.count(), post_count)
+        self.assertFalse(
+            Post.objects.filter(
+                text='text',
+                group=PostCreateFormTests.group.id
+            ).exists()
+        )    

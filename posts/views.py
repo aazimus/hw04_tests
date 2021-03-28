@@ -30,9 +30,7 @@ def group_posts(request, slug):
     return render(request, "group.html", {
                   "group": group,
                   "posts": posts,
-                  "page": page,
-                  }
-                  )
+                  "page": page,})
 
 
 @login_required
@@ -43,30 +41,28 @@ def new_post(request):
     in_new_post = post_form.save(commit=False)
     in_new_post.author = request.user
     in_new_post.save()
-    return redirect('index')
+    return redirect('index')  
 
 
 def profile(request, username):
     user = get_object_or_404(User, username=username)
-    post_list = Post.objects.filter(author=user)
+    post_list = user.posts.all()
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    post_count = post_list.count()
-    author = user
+    post_count = post_list.count()    
     return render(
         request,
         'profile.html',
         {'user': user,
          'page': page,
-         'post_count': post_count, 'author': author},
-    )
+         'post_count': post_count,
+         'author': user},)
 
 
 def post_view(request, username, post_id):
     user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, id=post_id)
-    author = post.author
     post_list = Post.objects.filter(author=user)
     post_count = post_list.count()
     return render(
@@ -75,8 +71,7 @@ def post_view(request, username, post_id):
         {'post': post,
          'user': user,
          'post_count': post_count,
-         'author': author,
-         })
+         'author': user,})
 
 
 @login_required

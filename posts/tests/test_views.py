@@ -91,7 +91,6 @@ class ViewModelTest(TestCase):
         post_object = response.context['page'][0]
         post_text_index = post_object
         last_post = Post.objects.order_by("-pub_date")[0:1]
-
         self.assertEqual(post_text_index, last_post.get())
 
     def test_new_post_group_identification(self):

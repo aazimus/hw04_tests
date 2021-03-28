@@ -40,9 +40,6 @@ class TestClientUrl(TestCase):
             author=TestClientUrl.user
         )
 
-        # Первый в списке код - проверка не авторизированного
-        # пользователя,второй в списке код проверка авторизированного
-        # пользователя
         cls.urls_code = {
             reverse('index', args=None): {'unauth': 200, 'auth': 200, },
             reverse('new_post', args=None): {'unauth': 302, 'auth': 200, },

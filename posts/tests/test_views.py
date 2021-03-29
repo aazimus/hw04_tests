@@ -4,6 +4,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from posts.models import User, Group, Post
+from yatube.settings import POSTS_PER_PAGE
 
 User = get_user_model()
 
@@ -152,9 +153,10 @@ class PaginatorViewsTest(TestCase):
         cls.test_group = (Group.objects.create(
             title='Группа для проверки пагинатора',
             slug='Test-slug-paginator',))
-
+        cls.delta_posts = 3
         cls.array_posts = []
-        for index_posts in range(13):
+        for index_posts in range(
+                POSTS_PER_PAGE + PaginatorViewsTest.delta_posts):
             username_par = f'Пользователь {index_posts}'
             PaginatorViewsTest.array_posts.append(Post.objects.create(
                 text=f'Текст вашего поста{index_posts}',
@@ -164,9 +166,12 @@ class PaginatorViewsTest(TestCase):
     def test_first_page_containse_ten_records(self):
         """Проверка правильной работы пагинатора 1ая страница"""
         response = self.client.get(reverse('index'))
-        self.assertEqual(len(response.context.get('page').object_list), 10)
+        self.assertEqual(
+            len(response.context.get('page').object_list), POSTS_PER_PAGE)
 
     def test_second_page_containse_three_records(self):
         """Проверка правильной работы пагинатора 2ая страница"""
         response = self.client.get(reverse('index'), {'page': 2})
-        self.assertEqual(len(response.context.get('page').object_list), 3)
+        self.assertEqual(
+            len(response.context.get('page').object_list),
+            PaginatorViewsTest.delta_posts)

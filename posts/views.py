@@ -6,11 +6,12 @@ from django.urls import reverse
 
 from .models import Post, Group, User
 from .forms import PostForm
+from yatube.settings import POSTS_PER_PAGE
 
 
 def index(request):
     post_list = Post.objects.all().order_by('-pub_date')
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
@@ -24,7 +25,7 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.all()[:12]
-    paginator = Paginator(posts, 10)
+    paginator = Paginator(posts, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(request, 'group.html', {
@@ -47,7 +48,7 @@ def new_post(request):
 def profile(request, username):
     user = get_object_or_404(User, username=username)
     post_list = user.posts.all()
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, POSTS_PER_PAGE)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     post_count = post_list.count()

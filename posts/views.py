@@ -27,17 +27,17 @@ def group_posts(request, slug):
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, "group.html", {
-                  "group": group,
-                  "posts": posts,
-                  "page": page, })
+    return render(request, 'group.html', {
+                  'group': group,
+                  'posts': posts,
+                  'page': page, })
 
 
 @login_required
 def new_post(request):
     post_form = PostForm(request.POST or None)
     if not post_form.is_valid():
-        return render(request, "new.html", {'form': post_form})
+        return render(request, 'posts/new.html', {'form': post_form})
     in_new_post = post_form.save(commit=False)
     in_new_post.author = request.user
     in_new_post.save()
@@ -53,7 +53,7 @@ def profile(request, username):
     post_count = post_list.count()
     return render(
         request,
-        'profile.html',
+        'posts/profile.html',
         {'user': user,
          'page': page,
          'post_count': post_count,
@@ -66,7 +66,7 @@ def post_view(request, username, post_id):
     post_count = post_list.count()
     return render(
         request,
-        'post.html',
+        'posts/post.html',
         {'post': post,
          'user': post.author,
          'post_count': post_count,
@@ -84,5 +84,5 @@ def post_edit(request, username, post_id):
         post.save()
         return redirect(reverse('post_edit', kwargs={
                         'username': post.author.username, 'post_id': post_id}))
-    return render(request, 'new.html', {
+    return render(request, 'posts/new.html', {
                   'form': form, 'post': post, 'edit': True})

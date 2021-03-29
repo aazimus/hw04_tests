@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 from django.test import TestCase, Client
 from django.urls import reverse
 
@@ -10,7 +12,7 @@ class StaticURLTests(TestCase):
 
     def test_homepage(self):
         response = self.guest_client.get(reverse('index'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
 
 
 class TestClientUrl(TestCase):
@@ -41,24 +43,24 @@ class TestClientUrl(TestCase):
         )
 
         cls.urls_code = {
-            reverse('index', args=None): {'unauth': 200, 'auth': 200, },
-            reverse('new_post', args=None): {'unauth': 302, 'auth': 200, },
-            reverse("group_posts",
+            reverse('index', args=None): {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
+            reverse('new_post', args=None): {'unauth': HTTPStatus.FOUND, 'auth': HTTPStatus.OK, },
+            reverse('group_posts',
                     args=[TestClientUrl.group.slug]):
-            {'unauth': 200, 'auth': 200, },
-            reverse("profile",
+            {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
+            reverse('profile',
                     args=[TestClientUrl.posts.author.username]):
-            {'unauth': 200, 'auth': 200, },
-            reverse("post", kwargs={'username':
+            {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
+            reverse('post', kwargs={'username':
                                     TestClientUrl.posts.author.username,
                                     'post_id': TestClientUrl.posts.id}):
-            {'unauth': 200, 'auth': 200, },
-            reverse("post_edit",
+            {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
+            reverse('post_edit',
                     kwargs={'username': TestClientUrl.posts.author.username,
                             'post_id': TestClientUrl.posts.id}):
-            {'unauth': 302, 'auth': 200, },
-            reverse('about:author'): {'unauth': 200, 'auth': 200, },
-            reverse('about:tech'): {'unauth': 200, 'auth': 200, },
+            {'unauth': HTTPStatus.FOUND, 'auth': HTTPStatus.OK, },
+            reverse('about:author'): {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
+            reverse('about:tech'): {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
 
         }
 
@@ -82,17 +84,17 @@ class TestClientUrl(TestCase):
     def test_post_edit_url_author_posts(self):
         """Проверка доступа к редактированию поста не автора поста"""
         response = self.authorized_non_author_post.get(
-            reverse("post_edit", kwargs={
+            reverse('post_edit', kwargs={
                 'username': TestClientUrl.posts.author.username,
                 'post_id': TestClientUrl.posts.id})
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_urls_uses_correct_template(self):
         """ URL-адрес использует соответствующий шаблон. """
         templates_url_names = {
             'index.html': reverse('index'),
-            'new.html': reverse('new_post'),
+            'posts/new.html': reverse('new_post'),
             'group.html': reverse('group_posts',
                                   args=[TestClientUrl.group.slug]),
             'about/author.html': reverse('about:author'),
@@ -104,9 +106,9 @@ class TestClientUrl(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_urls_new_corret_templates(self):
-        template = 'new.html'
+        template = 'posts/new.html'
         response = self.authorized_client.get(
-            reverse("post_edit",
+            reverse('post_edit',
                     kwargs={
                         'username':
                         TestClientUrl.posts.author.username,

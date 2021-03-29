@@ -33,13 +33,13 @@ class Post(models.Model):
         verbose_name='Текст вашего поста',
         help_text='Содержание вашего поста'
     )
-    pub_date = models.DateTimeField("date published", auto_now_add=True)
+    pub_date = models.DateTimeField('date published', auto_now_add=True)
     author = models.ForeignKey(
         User,
         verbose_name='Автор',
         help_text='Автор поста',
         on_delete=models.CASCADE,
-        related_name="posts")
+        related_name='posts')
     group = models.ForeignKey(
         Group,
         verbose_name='Группа',
@@ -47,10 +47,10 @@ class Post(models.Model):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name="posts")
+        related_name='posts')
 
     class Meta:
-        ordering = ("-pub_date",)
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return (self.text[0:15])

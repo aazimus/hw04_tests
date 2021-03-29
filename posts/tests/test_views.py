@@ -38,7 +38,7 @@ class ViewModelTest(TestCase):
         """URL-адрес использует соответствующий шаблон."""
         templates_pages_names = {
             'index.html': reverse('index'),
-            'new.html': reverse('new_post'),
+            'posts/new.html': reverse('new_post'),
             'group.html': reverse('group_posts',
                                   args=[ViewModelTest.group.slug])
         }
@@ -82,7 +82,7 @@ class ViewModelTest(TestCase):
 
     def test_create_new_post(self):
         """ Посты совападют """
-        last_post = Post.objects.order_by("-pub_date")[0:1]
+        last_post = Post.objects.order_by('-pub_date')[0:1]
         self.assertEqual(ViewModelTest.posts, last_post.get())
 
     def test_index_create_new_post(self):
@@ -90,7 +90,7 @@ class ViewModelTest(TestCase):
         response = self.authorized_client.get(reverse('index'))
         post_object = response.context['page'][0]
         post_text_index = post_object
-        last_post = Post.objects.order_by("-pub_date")[0:1]
+        last_post = Post.objects.order_by('-pub_date')[0:1]
         self.assertEqual(post_text_index, last_post.get())
 
     def test_new_post_group_identification(self):
@@ -104,7 +104,7 @@ class ViewModelTest(TestCase):
         """Проверка страницы редактирования поста  на шаблон"""
         response = ViewModelTest.authorized_client.get(
             reverse(
-                "post_edit",
+                'post_edit',
                 kwargs={
                     'username': self.posts.author.username,
                     'post_id': self.posts.id}))
@@ -120,7 +120,7 @@ class ViewModelTest(TestCase):
     def test_profile_user_post(self):
         """Проверка контекста страницы профайла на контекст"""
         response = ViewModelTest.authorized_client.get(
-            reverse("profile", kwargs={'username':
+            reverse('profile', kwargs={'username':
                                        ViewModelTest.posts.author.username}))
         post_object = response.context['page'][0]
         self.check_context_post(post_object)
@@ -129,7 +129,7 @@ class ViewModelTest(TestCase):
         """Проверка контекста страницы отдельног поста"""
         response = ViewModelTest.authorized_client.get(
             reverse(
-                "post",
+                'post',
                 kwargs={
                     'username': ViewModelTest.posts.author.username,
                     'post_id': ViewModelTest.posts.id}))

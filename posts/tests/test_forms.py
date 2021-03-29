@@ -1,3 +1,4 @@
+from http import HTTPStatus
 
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -33,13 +34,13 @@ class PostCreateFormTests(TestCase):
             'group': PostCreateFormTests.group.id,
             'author': self.user
         }
-        # Отправляем POST-запрос
+       
         response = self.authorized_client.post(
             reverse('new_post'),
             data=form_data,
             follow=False
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertRedirects(response, reverse('index'))
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertTrue(
@@ -57,12 +58,12 @@ class PostCreateFormTests(TestCase):
             'group': PostCreateFormTests.group.id
         }
         response = self.authorized_client.post(
-            reverse("post_edit",
+            reverse('post_edit',
                     kwargs={'username': PostCreateFormTests.user.username,
                             'post_id': PostCreateFormTests.post.id}),
             data=fix_form_data, follow=False)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(Post.objects.count(), post_count)
         self.assertTrue(
             Post.objects.filter(
@@ -80,11 +81,11 @@ class PostCreateFormTests(TestCase):
             'group': PostCreateFormTests.group.id
         }
         response = self.guest_client.post(
-            reverse("post_edit",
+            reverse('post_edit',
                     kwargs={'username': PostCreateFormTests.user.username,
                             'post_id': PostCreateFormTests.post.id}),
             data=fix_form_data, follow=False)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(Post.objects.count(), post_count)
         self.assertFalse(
             Post.objects.filter(
@@ -107,7 +108,7 @@ class PostCreateFormTests(TestCase):
             data=form_data,
             follow=False
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
         self.assertEqual(Post.objects.count(), post_count)
         self.assertFalse(
             Post.objects.filter(

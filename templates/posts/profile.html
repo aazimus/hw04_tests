@@ -20,7 +20,6 @@
       </div>
     </div>
     <div class="col-md-9"> {% for post in page %}
-      <!-- Начало блока с отдельным постом -->
       <div class="card mb-3 mt-1 shadow-sm">
         <div class="card-body">
           <p class="card-text"> <a href="{% url 'profile' post.author.username %}"><strong class="d-block text-gray-dark">@{{ post.author.username}}</strong></a> {{ post.text }} </p>

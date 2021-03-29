@@ -34,7 +34,7 @@ class PostCreateFormTests(TestCase):
             'group': PostCreateFormTests.group.id,
             'author': self.user
         }
-       
+
         response = self.authorized_client.post(
             reverse('new_post'),
             data=form_data,

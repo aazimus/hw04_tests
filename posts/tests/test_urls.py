@@ -43,8 +43,10 @@ class TestClientUrl(TestCase):
         )
 
         cls.urls_code = {
-            reverse('index', args=None): {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
-            reverse('new_post', args=None): {'unauth': HTTPStatus.FOUND, 'auth': HTTPStatus.OK, },
+            reverse('index', args=None):
+            {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
+            reverse('new_post', args=None):
+            {'unauth': HTTPStatus.FOUND, 'auth': HTTPStatus.OK, },
             reverse('group_posts',
                     args=[TestClientUrl.group.slug]):
             {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
@@ -59,8 +61,10 @@ class TestClientUrl(TestCase):
                     kwargs={'username': TestClientUrl.posts.author.username,
                             'post_id': TestClientUrl.posts.id}):
             {'unauth': HTTPStatus.FOUND, 'auth': HTTPStatus.OK, },
-            reverse('about:author'): {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
-            reverse('about:tech'): {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
+            reverse('about:author'):
+            {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
+            reverse('about:tech'):
+            {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
 
         }
 

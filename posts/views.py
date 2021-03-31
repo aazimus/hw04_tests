@@ -38,7 +38,7 @@ def group_posts(request, slug):
 def new_post(request):
     post_form = PostForm(request.POST or None)
     if not post_form.is_valid():
-        return render(request, 'posts/new.html', {'form': post_form})
+        return render(request, 'new.html', {'form': post_form})
     in_new_post = post_form.save(commit=False)
     in_new_post.author = request.user
     in_new_post.save()
@@ -54,7 +54,7 @@ def profile(request, username):
     post_count = post_list.count()
     return render(
         request,
-        'posts/profile.html',
+        'profile.html',
         {'user': user,
          'page': page,
          'post_count': post_count,
@@ -67,7 +67,7 @@ def post_view(request, username, post_id):
     post_count = post_list.count()
     return render(
         request,
-        'posts/post.html',
+        'post.html',
         {'post': post,
          'user': post.author,
          'post_count': post_count,
@@ -85,5 +85,5 @@ def post_edit(request, username, post_id):
         post.save()
         return redirect(reverse('post_edit', kwargs={
                         'username': post.author.username, 'post_id': post_id}))
-    return render(request, 'posts/new.html', {
+    return render(request, 'new.html', {
                   'form': form, 'post': post, 'edit': True})

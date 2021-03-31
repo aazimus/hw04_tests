@@ -39,7 +39,7 @@ class ViewModelTest(TestCase):
         """URL-адрес использует соответствующий шаблон."""
         templates_pages_names = {
             'index.html': reverse('index'),
-            'posts/new.html': reverse('new_post'),
+            'new.html': reverse('new_post'),
             'group.html': reverse('group_posts',
                                   args=[ViewModelTest.group.slug])
         }

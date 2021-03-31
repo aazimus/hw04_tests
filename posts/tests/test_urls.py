@@ -18,17 +18,9 @@ class StaticURLTests(TestCase):
 class TestClientUrl(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.user = User.objects.create_user(username='author_post')
-        cls.authorized_client = Client()
-        cls.authorized_client.force_login(cls.user)
-
+        cls.user = User.objects.create_user(username='author_post_posts')
         cls.user_non_author_post = User.objects.create_user(
             username='Non_author_post')
-        cls.authorized_non_author_post = Client()
-        cls.authorized_non_author_post.force_login(cls.user_non_author_post)
-
-        cls.guest_client = Client()
-
         super().setUpClass()
         cls.group = Group.objects.create(
             title='Группа1',
@@ -43,30 +35,29 @@ class TestClientUrl(TestCase):
         )
 
         cls.urls_code = {
-            reverse('index', args=None):
+            '':
             {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
-            reverse('new_post', args=None):
+            '/new/':
             {'unauth': HTTPStatus.FOUND, 'auth': HTTPStatus.OK, },
-            reverse('group_posts',
-                    args=[TestClientUrl.group.slug]):
+            f'/group/{TestClientUrl.group.slug}/':
             {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
-            reverse('profile',
-                    args=[TestClientUrl.posts.author.username]):
+            f'/{TestClientUrl.posts.author.username}/':
             {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
-            reverse('post', kwargs={'username':
-                                    TestClientUrl.posts.author.username,
-                                    'post_id': TestClientUrl.posts.id}):
+            f'/{TestClientUrl.posts.author.username}/'
+            f'{TestClientUrl.posts.id}/':
             {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
-            reverse('post_edit',
-                    kwargs={'username': TestClientUrl.posts.author.username,
-                            'post_id': TestClientUrl.posts.id}):
+            (f'/{TestClientUrl.posts.author.username}'
+             f'/{TestClientUrl.posts.id}/edit/'):
             {'unauth': HTTPStatus.FOUND, 'auth': HTTPStatus.OK, },
-            reverse('about:author'):
-            {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
-            reverse('about:tech'):
-            {'unauth': HTTPStatus.OK, 'auth': HTTPStatus.OK, },
-
         }
+
+    def setUp(self):
+        self.guest_client = Client()
+        self.authorized_client = Client()
+        self.authorized_client.force_login(TestClientUrl.user)
+        self.authorized_non_author_post = Client()
+        self.authorized_non_author_post.force_login(
+            TestClientUrl.user_non_author_post)
 
     def test_home_url_exists_at_desired_location(self):
         """Тесты на не авторизированного пользователя прошли"""
@@ -98,11 +89,10 @@ class TestClientUrl(TestCase):
         """ URL-адрес использует соответствующий шаблон. """
         templates_url_names = {
             'index.html': reverse('index'),
-            'posts/new.html': reverse('new_post'),
+            'new.html': reverse('new_post'),
             'group.html': reverse('group_posts',
                                   args=[TestClientUrl.group.slug]),
-            'about/author.html': reverse('about:author'),
-            'about/tech.html': reverse('about:tech'),
+
         }
         for template, reverse_name in templates_url_names.items():
             with self.subTest():
@@ -110,7 +100,7 @@ class TestClientUrl(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_urls_new_corret_templates(self):
-        template = 'posts/new.html'
+        template = 'new.html'
         response = self.authorized_client.get(
             reverse('post_edit',
                     kwargs={
@@ -122,7 +112,7 @@ class TestClientUrl(TestCase):
 
     def test_new_url_redirect_anonymous_on_admin_login(self):
         """ Редирект не авторизированиго пользователя с new на регистрацию"""
-        response = TestClientUrl.guest_client.get(
+        response = self.guest_client.get(
             reverse('new_post'), follow=True)
         self.assertRedirects(
             response, '/auth/login/?next=/new/')

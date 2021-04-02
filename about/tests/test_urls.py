@@ -50,3 +50,8 @@ class TestClientUrl(TestCase):
             with self.subTest():
                 response = self.authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
+
+    def test_error_404_get(self):
+        """ Возвращает код 404, если страница не найдена"""
+        response = self.guest_client.get('non_adress')
+        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)

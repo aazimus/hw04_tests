@@ -6,9 +6,10 @@
     {% include "include/avatar_text_block.html" %}
     <div class="col-md-9">
       {% for post in page %}
-      {% include "include/post_block.html" %}
-      {%endfor%} {% include "include/paginator.html" %}
+        {% include "include/post_block.html" %}
+      {%endfor%}
+      {% include "include/paginator.html" %}
     </div>
   </div>
 </main>
- {% endblock %}
+{% endblock %}

@@ -9,10 +9,10 @@
       {%else%} 
         <h1>Создание нового поста </h1>
       {%endif%}          
-      <form method="post" 
+      <form method="post"  
         {%if post %} action="{% url 'post_edit' post.author.username post.id  %}"
         {%else%}  action="{% url 'new_post' %}"
-        {%endif%}>      
+        {%endif%} enctype="multipart/form-data">       
         {% csrf_token %}
         <div class="form-group center">
           {%for field in form%}
@@ -22,6 +22,7 @@
               </div>
             </div>
           {%endfor%}
+          
       </form>
           <div class="col-md-6 "> 
             <button type="submit" class="btn btn-primary">

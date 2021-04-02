@@ -3,9 +3,10 @@ from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from django.urls import reverse
+from django.utils import html
 
-from .models import Post, Group, User
-from .forms import PostForm
+from .models import Comment, Post, Group, User
+from .forms import PostForm, CommentForm
 from yatube.settings import POSTS_PER_PAGE
 
 
@@ -36,7 +37,8 @@ def group_posts(request, slug):
 
 @login_required
 def new_post(request):
-    post_form = PostForm(request.POST or None)
+    post_form = PostForm(request.POST or None,
+                         files=request.FILES or None,)
     if not post_form.is_valid():
         return render(request, 'new.html', {'form': post_form})
     in_new_post = post_form.save(commit=False)
@@ -52,26 +54,32 @@ def profile(request, username):
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     post_count = post_list.count()
+
     return render(
         request,
         'profile.html',
         {'user': user,
          'page': page,
          'post_count': post_count,
-         'author': user})
+         'author': user, })
 
 
 def post_view(request, username, post_id):
     post = get_object_or_404(Post, pk=post_id, author__username=username)
     post_list = Post.objects.filter(author=post.author)
     post_count = post_list.count()
+    form = CommentForm()
+    comments = post.comments.all()
     return render(
         request,
         'post.html',
-        {'post': post,
+        {'form': form,
+         'post': post,
          'user': post.author,
          'post_count': post_count,
          'author': post.author,
+         'comments': comments,
+         
          })
 
 
@@ -80,7 +88,8 @@ def post_edit(request, username, post_id):
     post = get_object_or_404(Post, author__username=username, id=post_id)
     if post.author.username != request.user.username:
         return redirect(reverse('profile', args=[post.author.username]))
-    form = PostForm(request.POST or None, instance=post)
+    form = PostForm(request.POST or None,
+                    files=request.FILES or None, instance=post)
     if form.is_valid():
         post.save()
         return redirect(reverse('post_edit', kwargs={
@@ -89,8 +98,21 @@ def post_edit(request, username, post_id):
                   'form': form, 'post': post, 'edit': True})
 
 
-def page_not_found(request, exception):
 
+@login_required
+def add_comment(request, username, post_id):    
+    post = get_object_or_404(Post, pk=post_id, author__username=username)       
+    form = CommentForm(request.POST or None,)    
+    if not form.is_valid():
+        return render(request, 'include/comments.html', {'form': form,})
+    in_new_comment = form.save(commit=False)
+    in_new_comment.author = request.user
+    in_new_comment.post = post
+    in_new_comment.save()
+    return redirect('post', username=username, post_id=post_id)
+
+
+def page_not_found(request, exception):
     return render(request, "misc/404.html", {"path": request.path}, status=404)
 
 

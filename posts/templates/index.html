@@ -1,19 +1,16 @@
 {% extends "base.html" %} 
 {% block title %} Последние обновления {% endblock %}
-
+{% load cache %}
 {% block content %}
     <div class="container">
-           <h1> Последние обновления на сайте</h1>
-            <!-- Вывод ленты записей -->
-                {% for post in page %}
-                  <!-- Вот он, новый include! -->
+           <h1> Последние обновления на сайте</h1>            
+            {% cache 20 index_page page %}
+                {% for post in page %}                  
                     {% include "include/post_item.html" with post=post %}
                 {% endfor %}
-    </div>
-
-        <!-- Вывод паджинатора -->
+            {% endcache %}    
+    </div>        
         {% if page.has_other_pages %}
-            {% include "paginator.html" with items=page paginator=paginator%}
+            {% include "include/paginator.html" with items=page paginator=paginator%}
         {% endif %}
-
 {% endblock %} 

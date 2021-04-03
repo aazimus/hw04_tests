@@ -3,13 +3,14 @@ from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from django.urls import reverse
+from django.views.decorators.cache import cache_page
 
 
 from .models import Post, Group, User
 from .forms import PostForm, CommentForm
 from yatube.settings import POSTS_PER_PAGE
 
-
+#@cache_page(20)
 def index(request):
     post_list = Post.objects.all().order_by('-pub_date')
     paginator = Paginator(post_list, POSTS_PER_PAGE)
@@ -114,3 +115,4 @@ def page_not_found(request, exception):
 
 def server_error(request):
     return render(request, "misc/500.html", status=500)
+

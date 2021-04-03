@@ -1,5 +1,5 @@
 from http import HTTPStatus
-
+from django.core.cache import cache
 from django.test import TestCase, Client
 from django.urls import reverse
 
@@ -13,6 +13,8 @@ class StaticURLTests(TestCase):
     def test_homepage(self):
         response = self.guest_client.get(reverse('index'))
         self.assertEqual(response.status_code, HTTPStatus.OK)
+
+   
 
 
 class TestClientUrl(TestCase):
@@ -116,3 +118,11 @@ class TestClientUrl(TestCase):
             reverse('new_post'), follow=True)
         self.assertRedirects(
             response, '/auth/login/?next=/new/')
+             
+    def test_index_cache(self):
+        """ Проверка данных из Cache страницы index"""
+        cash_before = self.authorized_client.post(reverse('index')).templates
+        cache.clear()
+        cashe_after = self.authorized_client.post(
+            reverse('index')).templates
+        self.assertNotEqual(cash_before, cashe_after)  

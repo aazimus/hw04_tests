@@ -1,7 +1,12 @@
 from django import forms
+import shutil
+import tempfile
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
+
 from django.test import Client, TestCase
 from django.urls import reverse
+from django.conf import settings
 
 from posts.models import User, Group, Post
 from yatube.settings import POSTS_PER_PAGE
@@ -13,9 +18,26 @@ class ViewModelTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
+
         cls.user = User.objects.create_user(username='test-user')
         cls.authorized_client = Client()
         cls.authorized_client.force_login(ViewModelTest.user)
+
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
+        )
+
+        uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
 
         cls.group2 = Group.objects.create(
             title='Название группы 2',
@@ -32,8 +54,14 @@ class ViewModelTest(TestCase):
         cls.posts = Post.objects.create(
             text='Текст вашего поста',
             group=cls.group,
+            image=uploaded,
             author=ViewModelTest.user
         )
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
 
     def test_pages_use_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
@@ -55,11 +83,17 @@ class ViewModelTest(TestCase):
         self.assertEqual(objects.author.username,
                          ViewModelTest.posts.author.username)
 
+    def check_image_in_page(self, response, objects):
+        content = str(response.content)
+        self.assertIn('<img class="card-img" src="/media/cache/', content)
+        self.assertTrue(objects.image)
+
     def test_home_page_shows_correct_context(self):
         """Проверка главной страницы  на шаблон"""
         response = self.authorized_client.get(reverse('index'))
         post_object = response.context['page'][0]
         self.check_context_post(post_object)
+        self.check_image_in_page(response, post_object)
 
     def test_group_page_shows_correct_context(self):
         """Проверка страницы группы на шаблон"""
@@ -67,6 +101,7 @@ class ViewModelTest(TestCase):
             reverse('group_posts', args=[ViewModelTest.group.slug]))
         group_object = response.context['posts'][0]
         self.check_context_post(group_object)
+        self.check_image_in_page(response, group_object)
 
     def test_new_posts_page_shows_correct_context(self):
         """Проверка страницы нового поста  на шаблон"""
@@ -125,6 +160,7 @@ class ViewModelTest(TestCase):
                                        ViewModelTest.posts.author.username}))
         post_object = response.context['page'][0]
         self.check_context_post(post_object)
+        self.check_image_in_page(response, post_object)
 
     def test_post_user_post(self):
         """Проверка контекста страницы отдельног поста"""
@@ -144,6 +180,7 @@ class ViewModelTest(TestCase):
             count_object, Post.objects.filter(
                 author=ViewModelTest.posts.author).count())
         self.assertEqual(user_object, ViewModelTest.user)
+        self.check_image_in_page(response, post_object)
 
 
 class PaginatorViewsTest(TestCase):

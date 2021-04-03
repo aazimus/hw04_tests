@@ -18,10 +18,10 @@ class GroupAdmin(admin.ModelAdmin):
     list_filter = ('title',)
     prepopulated_fields = {'slug': ('title',)}
 
+
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'text','created')
+    list_display = ('pk', 'text', 'created')
     search_fields = ('text',)
     list_filter = ('text',)
     empty_value_display = '-пусто-'
-       

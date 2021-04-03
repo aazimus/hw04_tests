@@ -73,5 +73,8 @@ class Comment(models.Model):
         help_text='Добавьте комментарий')
     created = models.DateTimeField('date published', auto_now_add=True)
 
+    class Meta:
+        ordering = ('-created',)
+
     def __str__(self):
         return self.text[0:15]

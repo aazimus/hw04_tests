@@ -3,9 +3,9 @@ from django.shortcuts import redirect, render
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from django.urls import reverse
-from django.utils import html
 
-from .models import Comment, Post, Group, User
+
+from .models import Post, Group, User
 from .forms import PostForm, CommentForm
 from yatube.settings import POSTS_PER_PAGE
 
@@ -75,11 +75,9 @@ def post_view(request, username, post_id):
         'post.html',
         {'form': form,
          'post': post,
-         'user': post.author,
          'post_count': post_count,
          'author': post.author,
          'comments': comments,
-         
          })
 
 
@@ -98,17 +96,15 @@ def post_edit(request, username, post_id):
                   'form': form, 'post': post, 'edit': True})
 
 
-
 @login_required
-def add_comment(request, username, post_id):    
-    post = get_object_or_404(Post, pk=post_id, author__username=username)       
-    form = CommentForm(request.POST or None,)    
-    if not form.is_valid():
-        return render(request, 'include/comments.html', {'form': form,})
-    in_new_comment = form.save(commit=False)
-    in_new_comment.author = request.user
-    in_new_comment.post = post
-    in_new_comment.save()
+def add_comment(request, username, post_id):
+    post = get_object_or_404(Post, pk=post_id, author__username=username)
+    form = CommentForm(request.POST or None,)
+    if form.is_valid():
+        in_new_comment = form.save(commit=False)
+        in_new_comment.author = request.user
+        in_new_comment.post = post
+        in_new_comment.save()
     return redirect('post', username=username, post_id=post_id)
 
 

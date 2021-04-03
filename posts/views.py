@@ -69,7 +69,7 @@ def post_view(request, username, post_id):
     post_list = Post.objects.filter(author=post.author)
     post_count = post_list.count()
     form = CommentForm()
-    comments = post.comments.all()
+    comments = post.comments.select_related('author').all()
     return render(
         request,
         'post.html',

@@ -1,10 +1,12 @@
-{% extends "base.html" %} {% block title %}{{ user.get_full_name }}{% endblock %} {% block content %}
+{% extends "base.html" %}
+ {% block title %}
+ {{ user.get_full_name }}
+ {% endblock %} {% block content %}
 <main role="main" class="container">
-  <div class="row">
-    {% include "include/avatar_text_block.html" %}
+  <div class="row">    
     <div class="col-md-9"> 
-      {% include "include/post_block.html" %} 
-      {% include "include/comments.html"  %}       
+      {% include "include/post_item.html" with post=post %}
+      {% include "include/comments.html" with post=post %}        
     </div>
   </div>
 </main>
